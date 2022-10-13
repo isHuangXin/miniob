@@ -76,6 +76,55 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
   return RC::SUCCESS;
 }
 
+RC Db::drop_table(const char *table_name)
+{
+  if (opened_tables_.count(table_name) == 0) {
+    LOG_WARN("%s hasn't been created", table_name); //不知道这个要不打印出来
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+  auto it = opened_tables_.find(table_name);
+  Table *cur_table = it->second;
+  RC rc = cur_table->drop_itself(path_.c_str());
+  if (rc != RC::SUCCESS)
+    return rc;
+  /*--------------------------------original code--------------------------------*/
+  // // TODO:删除meta data和data文件
+  // std::string table_meta_path = table_meta_file(path_.c_str(), table_name);
+  // std::string table_data_path = table_data_file(path_.c_str(), table_name);
+
+  // if (common::is_blank(table_meta_path) || common::is_blank(table_data_path)) {
+  //   LOG_WARN("Name cannot be empty");
+  //   return RC::INVALID_ARGUMENT;
+  // }
+  // LOG_INFO("Begin to drop table %s", table_name);
+
+  // // TODO:判断表的两个文件是否存在
+  // //----------------------------------------
+  // // int fd = ::open(table_meta_path, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+  // // if ()
+  // // close(fd);
+  // // ENDTODO:
+
+  // if (std::remove(table_meta_path) != 0) {
+  //   return RC::GENERIC_ERROR;
+  // }
+  // if (std::remove(table_data_path) != 0) {
+  //   return RC::GENERIC_ERROR;
+  // }
+  // const TableMeta table_meta = cur_table->table_meta();
+  // // ...这个index还只能在table里面用，indexes_是个protect权限。。
+  // for (int i = 0; i < table_meta)
+  /*-----------------------------------------------------------------------------*/
+
+
+
+  opened_tables_.erase(table_name);
+  delete cur_table;
+  LOG_INFO("Drop table success. table name=%s", table_name);
+  return RC::SUCCESS;
+
+}
+
 Table *Db::find_table(const char *table_name) const
 {
   std::unordered_map<std::string, Table *>::const_iterator iter = opened_tables_.find(table_name);

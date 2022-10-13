@@ -46,6 +46,7 @@ RC BPFrameManager::init(int pool_num)
 
 RC BPFrameManager::cleanup()
 {
+  //PUZME:这什么意思，有东西就返回错误？
   if (frames_.count() > 0) {
     return RC::GENERIC_ERROR;
   }
@@ -56,7 +57,17 @@ RC BPFrameManager::cleanup()
 
 Frame *BPFrameManager::begin_purge()
 {
+  // TODO: implement LRU
   Frame *frame_can_purge = nullptr;
+  // // 在这里的话，应该直接让frames_(即lru_cache)pop出一个空闲的frame出来而不是对每个frame进行遍历
+  // // UPDABV:不是pop，如果是pop的话，是直接pop出最后面的frame，但是不代表这个frame可以被pop出来
+  // /* ------------------rb solution here--------------------------*/
+
+  // frames_.pop(&frame_can_purge);
+
+  // 说的O(n)的查找应该是这个
+  /* ------------------------------------------------------------*/
+  /* ----------------raw solution here---------------------------*/
   auto purge_finder = [&frame_can_purge](const BPFrameId &frame_id, Frame * const frame) {
     if (frame->can_purge()) {
       frame_can_purge = frame;
@@ -65,6 +76,8 @@ Frame *BPFrameManager::begin_purge()
     return true; // true continue to look up
   };
   frames_.foreach_reverse(purge_finder);
+  /* ------------------------------------------------------------*/
+
   return frame_can_purge;
 }
 

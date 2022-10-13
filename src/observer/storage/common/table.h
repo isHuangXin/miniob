@@ -70,6 +70,8 @@ public:
     return record_handler_;
   }
 
+  RC drop_itself(const char* pth);
+
 public:
   const char *name() const;
 

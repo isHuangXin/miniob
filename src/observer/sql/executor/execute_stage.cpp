@@ -32,12 +32,14 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/predicate_operator.h"
 #include "sql/operator/delete_operator.h"
 #include "sql/operator/project_operator.h"
+// #include "sql/operator/drop_table_operator.h"
 #include "sql/stmt/stmt.h"
 #include "sql/stmt/select_stmt.h"
 #include "sql/stmt/update_stmt.h"
 #include "sql/stmt/delete_stmt.h"
 #include "sql/stmt/insert_stmt.h"
 #include "sql/stmt/filter_stmt.h"
+// #include "sql/stmt/drop_table_stmt.h"
 #include "storage/common/table.h"
 #include "storage/common/field.h"
 #include "storage/index/index.h"
@@ -169,7 +171,9 @@ void ExecuteStage::handle_request(common::StageEvent *event)
       do_desc_table(sql_event);
     } break;
 
-    case SCF_DROP_TABLE:
+    case SCF_DROP_TABLE: {
+      do_drop_table(sql_event);
+    } break;
     case SCF_DROP_INDEX:
     case SCF_LOAD_DATA: {
       default_storage_stage_->handle_event(event);
@@ -555,6 +559,29 @@ RC ExecuteStage::do_delete(SQLStageEvent *sql_event)
   delete_oper.add_child(&pred_oper);
 
   RC rc = delete_oper.open();
+  if (rc != RC::SUCCESS) {
+    session_event->set_response("FAILURE\n");
+  } else {
+    session_event->set_response("SUCCESS\n");
+  }
+  return rc;
+}
+
+RC ExecuteStage::do_drop_table(SQLStageEvent *sql_event)
+{
+  const DropTable &drop_table = sql_event->query()->sstr.drop_table;
+  SessionEvent *session_event = sql_event->session_event();
+  Db *db = session_event->session()->get_current_db();
+  RC rc = db->drop_table(drop_table.relation_name);
+  // if (stmt == nullptr) {
+  //   LOG_WARN("cannot find statement");
+  //   return RC::GENERIC_ERROR;
+  // }
+
+  // DropTableStmt *drop_table_stmt = (DropTableStmt *)stmt;
+  // DropTableOperator drop_table_oper(drop_table_stmt);
+
+  // RC rc = drop_table_oper.open();
   if (rc != RC::SUCCESS) {
     session_event->set_response("FAILURE\n");
   } else {

@@ -373,6 +373,34 @@ RC Table::get_record_scanner(RecordFileScanner &scanner)
   return rc;
 }
 
+RC Table::drop_itself(const char* pth)
+{
+  RC rc = sync();
+  if (rc != RC::SUCCESS) {
+    return rc;
+  }
+  std::string table_meta_path = table_meta_file(pth, name());
+  std::string table_data_path = table_data_file(pth, name());
+  if (std::remove(table_meta_path.c_str()) != 0) {
+    LOG_ERROR("Cannot remove meta data of table %s", name());
+    return RC::GENERIC_ERROR;
+  }
+  if (std::remove(table_data_path.c_str()) != 0) {
+    LOG_ERROR("Cannot remove file data of table %s", name());
+    return RC::GENERIC_ERROR;
+  }
+  int index_num = table_meta_.index_num();
+  for (int i = 0; i < index_num; i++) {
+    static_cast<BplusTreeIndex*>(indexes_[i])->close();
+    // 删除索引文件
+    if (std::remove(table_index_file(pth, name(), indexes_[i]->index_meta().name()).c_str()) != 0) {
+      LOG_ERROR("Cannot remove index of table %s", name());
+      return RC::GENERIC_ERROR;
+    }
+  }
+  return RC::SUCCESS;
+}
+
 /**
  * 为了不把Record暴露出去，封装一下
  */

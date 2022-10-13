@@ -16,6 +16,9 @@ See the Mulan PSL v2 for more details. */
 
 #include <functional>
 #include <unordered_set>
+// Import package needed here
+#include <queue>
+#include <list>
 
 namespace common {
 
@@ -89,6 +92,7 @@ public:
 
     lru_front_ = nullptr;
     lru_tail_  = nullptr;
+
   }
 
   size_t count() const
@@ -110,7 +114,7 @@ public:
 
   void put(const Key &key, const Value &value)
   {
-    auto iter = searcher_.find((ListNode *)&key);
+    auto iter = searcher_.find((ListNode *)&key);// 原来还可以这样，牛逼
     if (iter != searcher_.end()) {
       ListNode * ln = *iter;
       ln->value_ = value;
@@ -120,6 +124,8 @@ public:
 
     ListNode *ln = new ListNode(key, value);
     lru_push(ln);
+    // lru_list_.push_front(value);
+    // lru_map_[key] = lru_list_.begin();
   }
 
   void remove(const Key &key)
@@ -133,7 +139,12 @@ public:
   void pop(Value *&value)
   {
     // TODO
-    value = nullptr;
+    // if (lru_front_ != nullptr) {
+    //   value = lru_front_->value_;
+    //   lru_front_ = lru_front_->next_;
+    // } else {
+    //   value = nullptr;
+    // }
   }
 
   void foreach(std::function<bool(const Key &, const Value &)> func)
@@ -220,9 +231,18 @@ private:
 
 private:
   using SearchType = std::unordered_set<ListNode *, PListNodeHasher, PListNodePredicator>;
+
+  // using MySearchType = std::unordered_map<Key, Value>;
+
   SearchType   searcher_;
   ListNode   * lru_front_ = nullptr;
   ListNode   * lru_tail_  = nullptr;
+  
+  // 链表可以看成 unpop-unpop-unpop-pop-pop的形式，用pop_first指向最后一个pop
+  // ListNode   * pop_first = nullptr;
+
+  // std::list<Value *> lru_list_;
+  // std::unordered_map<Key, std::list<Value *>::iterator> lru_map_;
 };
 
 } // namespace common
