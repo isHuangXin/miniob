@@ -98,6 +98,10 @@ public:
     cell = tuple_cell_;
   }
 
+  void cast_type(AttrType attr_type) {
+    tuple_cell_.set_type(attr_type);
+  }
+
 private:
   TupleCell tuple_cell_;
 };

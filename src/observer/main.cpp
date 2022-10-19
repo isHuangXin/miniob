@@ -51,6 +51,10 @@ void parse_parameter(int argc, char **argv)
   // Process args
   int opt;
   extern char *optarg;
+  for (int i = 0; i < argc; i++)
+  {
+    std::cout << argv[i] << std::endl;
+  }
   while ((opt = getopt(argc, argv, "dp:s:f:o:e:h")) > 0) {
     switch (opt) {
       case 's':

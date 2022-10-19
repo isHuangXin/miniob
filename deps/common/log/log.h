@@ -27,6 +27,8 @@ See the Mulan PSL v2 for more details. */
 #include <set>
 #include <string>
 
+#include <unistd.h>
+
 #include "common/defs.h"
 
 namespace common {

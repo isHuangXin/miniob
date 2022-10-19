@@ -25,3 +25,4 @@ RC ValueExpr::get_value(const Tuple &tuple, TupleCell & cell) const
   cell = tuple_cell_;
   return RC::SUCCESS;
 }
+

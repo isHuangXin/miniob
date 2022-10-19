@@ -39,6 +39,39 @@ void TupleCell::to_string(std::ostream &os) const
   } break;
   }
 }
+int chars_to_ints(char* source)
+{
+  int len = strlen(source);
+  int ed = len;
+  int flag = source[0] == '-';
+  int st = flag;
+  // 暂时先用个int吧，如果溢出以后再改
+  int res = 0;
+  //判断正负
+  while (st < ed) {
+    res = (10 * res) + (source[st] - '0');
+    st++;
+  }
+  return res * (1 - 2 * flag);
+}
+
+float chars_to_floats(char* source)
+{
+  int len = strlen(source);
+  int flag = source[0] == '-';
+  double ft = 0, lst = 0;
+  int st = flag;
+  while (st < len && source[st] != '.') {
+    ft = ft * 10 + (source[st] - '0');
+    st++;
+  }
+  st++;
+  while (st < len) {
+    lst = 0.1 * (lst + (source[len-1] - '0'));
+    len--;
+  }
+  return (ft + lst) * (1 - 2 * flag);
+}
 
 int TupleCell::compare(const TupleCell &other) const
 {
@@ -56,6 +89,18 @@ int TupleCell::compare(const TupleCell &other) const
     return compare_float(&this_data, other.data_);
   } else if (this->attr_type_ == FLOATS && other.attr_type_ == INTS) {
     float other_data = *(int *)other.data_;
+    return compare_float(data_, &other_data);
+  } else if (this->attr_type_ == CHARS && other.attr_type_ == INTS) {
+    int this_data = chars_to_ints(this->data_);
+    return compare_int(&this_data, other.data_);
+  } else if (this->attr_type_ == INTS && other.attr_type_ == CHARS) {
+    int other_data = chars_to_ints(other.data_);
+    return compare_int(data_, &other_data);
+  } else if (this->attr_type_ == CHARS && other.attr_type_ == FLOATS) {
+    float this_data = chars_to_floats(this->data_);
+    return compare_float(&this_data, other.data_);
+  } else if (this->attr_type_ == FLOATS && other.attr_type_ == CHARS) {
+    float other_data = chars_to_floats(other.data_);
     return compare_float(data_, &other_data);
   }
   LOG_WARN("not supported");

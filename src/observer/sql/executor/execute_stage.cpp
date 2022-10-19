@@ -383,6 +383,20 @@ IndexScanOperator *try_to_create_index_scan_operator(FilterStmt *filter_stmt)
   return oper;
 }
 
+// void typecast(FilterStmt *filter_stmt)
+// {
+//   RowTuple tuple;
+//   for (const FilterUnit *filter_unit: filter_stmt->filter_units()) {
+//     // Expression *left_expr = filter_unit->left();
+//     Expression *right_expr = filter_unit->right();
+//     TupleCell right_cell;
+//     right_expr->get_value(tuple, right_cell);
+//     // 判断值的类型究竟是什么
+//     AttrType attr_type = right_cell.attr_type();
+//     right_expr->cast_type();
+//   }
+// }
+
 RC ExecuteStage::do_select(SQLStageEvent *sql_event)
 {
   SelectStmt *select_stmt = (SelectStmt *)(sql_event->stmt());
@@ -393,6 +407,7 @@ RC ExecuteStage::do_select(SQLStageEvent *sql_event)
     rc = RC::UNIMPLENMENT;
     return rc;
   }
+  //TODO:Implement typecast here
 
   Operator *scan_oper = try_to_create_index_scan_operator(select_stmt->filter_stmt());
   if (nullptr == scan_oper) {
@@ -589,3 +604,4 @@ RC ExecuteStage::do_drop_table(SQLStageEvent *sql_event)
   }
   return rc;
 }
+
