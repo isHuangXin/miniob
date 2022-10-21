@@ -306,23 +306,25 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
   }
 
   const int normal_field_start_index = table_meta_.sys_field_num();
-  for (int i = 0; i < value_num; i++) {
-    const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
-    const Value &value = values[i];
-    if (field->type() != value.type) {
-      LOG_ERROR("Invalid value type. table name =%s, field name=%s, type=%d, but given=%d",
-          table_meta_.name(),
-          field->name(),
-          field->type(),
-          value.type);
-      return RC::SCHEMA_FIELD_TYPE_MISMATCH;
-    }
-  }
+  // for (int i = 0; i < value_num; i++) {
+  //   const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
+  //   const Value &value = values[i];
+  //   if (field->type() != value.type) {
+  //     LOG_ERROR("Invalid value type. table name =%s, field name=%s, type=%d, but given=%d",
+  //         table_meta_.name(),
+  //         field->name(),
+  //         field->type(),
+  //         value.type);
+  //     return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+  //   }
+  // }
 
   // 复制所有字段的值
   int record_size = table_meta_.record_size();
   char *record = new char[record_size];
 
+  // char* temp_char_value;
+  // int temp_len;
   for (int i = 0; i < value_num; i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
     const Value &value = values[i];
@@ -334,6 +336,9 @@ RC Table::make_record(int value_num, const Value *values, char *&record_out)
       }
     }
     memcpy(record + field->offset(), value.data, copy_len);
+    // temp_char_value = record + field->offset();
+    // temp_len = strlen(temp_char_value);
+    // memcpy(temp_char_value, value.data, copy_len);
   }
 
   record_out = record;

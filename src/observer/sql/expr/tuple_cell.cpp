@@ -16,7 +16,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/field.h"
 #include "common/log/log.h"
 #include "util/comparator.h"
-
+#include "util/typecast.h"
 void TupleCell::to_string(std::ostream &os) const
 {
   switch (attr_type_) {
@@ -39,39 +39,8 @@ void TupleCell::to_string(std::ostream &os) const
   } break;
   }
 }
-int chars_to_ints(char* source)
-{
-  int len = strlen(source);
-  int ed = len;
-  int flag = source[0] == '-';
-  int st = flag;
-  // 暂时先用个int吧，如果溢出以后再改
-  int res = 0;
-  //判断正负
-  while (st < ed) {
-    res = (10 * res) + (source[st] - '0');
-    st++;
-  }
-  return res * (1 - 2 * flag);
-}
 
-float chars_to_floats(char* source)
-{
-  int len = strlen(source);
-  int flag = source[0] == '-';
-  double ft = 0, lst = 0;
-  int st = flag;
-  while (st < len && source[st] != '.') {
-    ft = ft * 10 + (source[st] - '0');
-    st++;
-  }
-  st++;
-  while (st < len) {
-    lst = 0.1 * (lst + (source[len-1] - '0'));
-    len--;
-  }
-  return (ft + lst) * (1 - 2 * flag);
-}
+
 
 int TupleCell::compare(const TupleCell &other) const
 {

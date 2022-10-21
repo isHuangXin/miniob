@@ -545,7 +545,7 @@ RC ExecuteStage::do_insert(SQLStageEvent *sql_event)
   }
 
   InsertStmt *insert_stmt = (InsertStmt *)stmt;
-
+  // const char* temp_char_value = (char*)insert_stmt->values()[0].data;
   Table *table = insert_stmt->table();
   RC rc = table->insert_record(nullptr, insert_stmt->value_amount(), insert_stmt->values());
   if (rc == RC::SUCCESS) {
